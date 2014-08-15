@@ -13,12 +13,21 @@
  * 
  * Copyright (c) 2011 Ahmad Shiina and contributers
  */
-class Rediscache {
+class Credis {
+
+	private $_ci;
+	private $_expires;
+	private $_hset;
 
 	public function __construct($params=null)
 	{
-		$this->CI =& get_instance();
-		$this->CI->load->library('redis');
+		$this->_ci =& get_instance();
+		$this->_ci->load->library('redis');
+
+		$this->_ci->load->config('credis');
+
+		$this->_expires = $this->_ci->config->item('cache_default_expires');
+		$this->_hset = $this->_ci->config->item('redish_hash_name');
 	}
 
 	/*
@@ -45,7 +54,8 @@ class Rediscache {
 	 * @param expire : int
 	 * @return bool
 	*/
-	public function set ($key, $value, $expire=43200) { 
+	public function set ($key, $value, $expire=null) 
+	{ 
 		if (!$this->_USE_CACHE) {
 			return false;
 		}
@@ -66,8 +76,13 @@ class Rediscache {
 		// get key
 		$cacheKey = $this->_get_cache_key($key);
 
-		$result = $this->CI->redis->set($cacheKey, $serializedVal );
-		$result = $this->CI->redis->command("EXPIRE", $cacheKey, $expire);
+		$result = $this->_ci->redis->hSet($this->_hset, $cacheKey, $serializedVal );
+
+		if($expire == null){
+			$expire = $this->_expires;
+		}
+
+		$result = $this->_ci->redis->command("EXPIRE", $cacheKey, $expire);
 		if ($result) {
 			return true;
 		} else {
@@ -84,19 +99,37 @@ class Rediscache {
 	 * @param key : string
 	 * @return mixed
 	*/
-	public function get ($key) {
+	public function get ($key) 
+	{
 		if (!$this->_USE_CACHE) {
 			return false;
 		}
 
 		$cacheKey = $this->_get_cache_key($key);
-		$serializedResult = $this->CI->redis->get($cacheKey);
+		$serializedResult = $this->_ci->redis->hGet($this->_hset, $cacheKey);
 
 		if ($serializedResult) {
 			return unserialize(urldecode($serializedResult));
 		} else {
 			return false;
 		}
+	}
+
+	/*
+	 * Get Keys
+	 * 
+	 * Uses redis to get a keys.
+	 * If the key does not exist, or if cache is disabled, it will return false.
+	 * 
+	 * @return mixed
+	*/
+	public function getKeys ()
+	{
+		$result = $this->_ci->redis->hKeys($this->_hset);
+		if($result){
+			return $result;
+		}
+		return false;
 	}
 
 	/*
@@ -109,9 +142,10 @@ class Rediscache {
 	 * @param key : string
 	 * @return bool
 	*/
-	public function del ($key) {
+	public function del ($key) 
+	{
 		$cacheKey = $this->_get_cache_key($key);
-		$result = $this->CI->redis->del($cacheKey);
+		$result = $this->_ci->redis->hDel($this->_hset, $cacheKey);
 		if ($result) {
 			return true;
 		} else {
@@ -120,9 +154,11 @@ class Rediscache {
 	}
 
 	// Format key into cache key
-	protected function _get_cache_key ($targetKey) {
+	protected function _get_cache_key ($targetKey) 
+	{
 		return implode('.', array($this->_CACHE_KEY_PREFIX, $targetKey));
 	}
-
 }
 
+/* End of file credis.php */
+/* Location: ./application/libraries/credis.php */
