@@ -39,7 +39,7 @@ You can get the value of a cache simply with the get function.
 ```
 
 Get keys cache :
-You can get the value of a cache simply with the get function.
+You can get the keys of a cache simply with the get function.
 ```
      $val = $this->credis->getKeys();
 ```
