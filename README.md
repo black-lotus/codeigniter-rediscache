@@ -29,19 +29,25 @@ types of values allowed for the serialize() method.
 Please refer to the official documentation (http://jp2.php.net/manual/ja/function.serialize.php)
 for the types of values allowed.
 ```
-     $this->rediscache->set('rediscache.test.key1', array('hoge' => 'fuga'), 500);
+     $this->credis->set('rediscache.test.key1', array('hoge' => 'fuga'), 500);
 ```
 
 Get cache :
 You can get the value of a cache simply with the get function.
 ```
-     $val = $this->rediscache->get('rediscache.test.key1');
+     $val = $this->credis->get('rediscache.test.key1');
+```
+
+Get keys cache :
+You can get the value of a cache simply with the get function.
+```
+     $val = $this->credis->getKeys();
 ```
 
 Delete cache :
 Deleting a cache is also as simple.
 ```
-     $this->rediscache->del('rediscache.test.key1');
+     $this->credis->del('rediscache.test.key1');
 ```
 
 License
