@@ -167,7 +167,7 @@ class Credis {
 		$keys = $this->getKeys();
 		if($keys){
 			foreach ($keys as $key => $value) {	
-				$this->del($value);
+				$this->_ci->redis->hDel($this->_hset, $value);
 			}
 			return true;
 		}
