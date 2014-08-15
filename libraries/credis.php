@@ -152,6 +152,27 @@ class Credis {
 			return false;
 		}
 	}
+	
+	/*
+	 * Delete all cache
+	 * 
+	 * Uses redis to delete a cache with the designated key.
+	 * It will return true if the cache is successfully deleted.
+	 * Otherwise it will return false.
+	 * 
+	 * @return bool
+	*/
+	public function delAll()
+	{
+		$keys = $this->getKeys();
+		if($keys){
+			foreach ($keys as $key => $value) {	
+				$this->del($value);
+			}
+			return true;
+		}
+		return false;
+	}
 
 	// Format key into cache key
 	protected function _get_cache_key ($targetKey) 
