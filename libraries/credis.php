@@ -164,14 +164,8 @@ class Credis {
 	*/
 	public function delAll()
 	{
-		$keys = $this->getKeys();
-		if($keys){
-			foreach ($keys as $key => $value) {	
-				$this->_ci->redis->hDel($this->_hset, $value);
-			}
-			return true;
-		}
-		return false;
+		$this->_ci->redis->del($this->_hset);
+		return;
 	}
 
 	// Format key into cache key
